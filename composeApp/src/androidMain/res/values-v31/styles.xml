@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Almi.Starting" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">@color/almi_cobalt</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_almi_splash</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/almi_cobalt</item>
+    </style>
+</resources>
