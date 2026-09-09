@@ -17,6 +17,7 @@ import kotlinx.serialization.json.Json
 
 expect fun platformHttpClient(): HttpClient
 expect val defaultApiBaseUrl: String
+expect val defaultGoogleAuthStartUrl: String
 
 fun createAlmiApi(baseUrl: String = defaultApiBaseUrl): AlmiApi {
     val client = platformHttpClient().config {
@@ -30,6 +31,7 @@ class AlmiApi(private val client: HttpClient, private val baseUrl: String) {
 
     suspend fun register(name: String, email: String, password: String): SessionDto = client.post("$baseUrl/auth/register") { contentType(ContentType.Application.Json); setBody(AuthRequest(email, password, name)) }.body<SessionDto>().also { token = it.token }
     suspend fun login(email: String, password: String): SessionDto = client.post("$baseUrl/auth/login") { contentType(ContentType.Application.Json); setBody(AuthRequest(email, password)) }.body<SessionDto>().also { token = it.token }
+    suspend fun exchangeGoogleCode(code: String): SessionDto = client.post("$baseUrl/auth/google/exchange") { contentType(ContentType.Application.Json); setBody(GoogleExchangeRequest(code)) }.body<SessionDto>().also { token = it.token }
     fun restoreToken(value: String?) { token = value }
     fun signOut() { token = null }
     suspend fun garments(): List<GarmentDto> = client.get("$baseUrl/garments") { authorize() }.body()
@@ -56,6 +58,7 @@ class AlmiApi(private val client: HttpClient, private val baseUrl: String) {
 }
 
 @Serializable data class AuthRequest(val email: String, val password: String, val name: String? = null)
+@Serializable data class GoogleExchangeRequest(val code: String)
 @Serializable data class SessionDto(val token: String, val user: UserDto)
 @Serializable data class UserDto(val id: String, val email: String, val name: String, @SerialName("style_profile") val styleProfile: String, val credits: Int)
 @Serializable data class GarmentDto(val id: String, val name: String, val category: String, val shape: String, @SerialName("color_hex") val colorHex: String, @SerialName("image_url") val imageUrl: String? = null, val brand: String? = null, val season: String = "ALL")

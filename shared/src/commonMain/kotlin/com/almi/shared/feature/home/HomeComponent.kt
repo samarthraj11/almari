@@ -27,6 +27,7 @@ interface HomeComponent {
     fun toggleAppearance()
     fun showAuth(show: Boolean)
     fun authenticate(name: String, email: String, password: String, register: Boolean)
+    fun completeGoogleSignIn(code: String)
     fun signOut()
     fun sync()
     fun clearMessage()

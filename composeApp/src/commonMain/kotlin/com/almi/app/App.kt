@@ -21,20 +21,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalUriHandler
 import com.almi.core.designsystem.AlmiTheme
 import com.almi.core.designsystem.LocalAlmiColors
 import com.almi.core.designsystem.LocalAlmiSpacing
 import com.almi.core.designsystem.LocalAlmiTypography
 import com.almi.core.designsystem.components.AlmiLogo
 import com.almi.feature.home.HomeScreen
+import com.almi.feature.home.OnboardingScreen
 import com.almi.shared.feature.home.DefaultHomeComponent
 import com.almi.shared.data.createAlmiApi
+import com.almi.shared.data.defaultGoogleAuthStartUrl
 import kotlinx.coroutines.delay
 
 @Composable
 fun App() {
     val homeComponent = remember { DefaultHomeComponent(createAlmiApi()) }
     val homeState by homeComponent.state.collectAsState()
+    val uriHandler = LocalUriHandler.current
     AlmiTheme(darkTheme = homeState.profile.isDarkMode) {
         var showSplash by remember { mutableStateOf(true) }
 
@@ -50,6 +54,12 @@ fun App() {
         ) { isSplashVisible ->
             if (isSplashVisible) {
                 AlmiSplashScreen()
+            } else if (!homeState.isConnected) {
+                OnboardingScreen(
+                    isLoading = homeState.isSyncing,
+                    error = homeState.authError,
+                    onContinueWithGoogle = { uriHandler.openUri(defaultGoogleAuthStartUrl) },
+                )
             } else {
                 HomeScreen(component = homeComponent)
             }

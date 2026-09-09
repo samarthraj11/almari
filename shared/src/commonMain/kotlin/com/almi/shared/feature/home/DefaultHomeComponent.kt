@@ -6,6 +6,8 @@ import com.almi.shared.data.GarmentInput
 import com.almi.shared.data.loadHomeState
 import com.almi.shared.data.saveHomeState
 import com.almi.shared.data.HomeStateStorage
+import com.almi.shared.data.GoogleAuthBridge
+import com.almi.shared.data.SessionDto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -25,6 +27,14 @@ class DefaultHomeComponent(private val api: AlmiApi? = null) : HomeComponent {
 
     init {
         scope.launch { mutableState.drop(1).collect(::saveHomeState) }
+        scope.launch {
+            GoogleAuthBridge.pending.collect { redirect ->
+                redirect ?: return@collect
+                GoogleAuthBridge.clear()
+                redirect.code?.let(::completeGoogleSignIn)
+                    ?: mutableState.update { it.copy(authError = "Google sign-in was cancelled or could not be completed.") }
+            }
+        }
         HomeStateStorage.readToken()?.let { token ->
             api?.restoreToken(token)
             mutableState.update { it.copy(isConnected = true) }
@@ -51,7 +61,7 @@ class DefaultHomeComponent(private val api: AlmiApi? = null) : HomeComponent {
                             isSyncing = false,
                             message = "Fresh look ready",
                         )
-                    }
+                        }
                     }
                     .onFailure { error -> showNetworkError(error); mutableState.update { it.copy(isSyncing = false) } }
             }
@@ -140,11 +150,18 @@ class DefaultHomeComponent(private val api: AlmiApi? = null) : HomeComponent {
         scope.launch {
             runCatching { if (register) api.register(name, email, password) else api.login(email, password) }
                 .onSuccess { session ->
-                    HomeStateStorage.writeToken(session.token)
-                    mutableState.update { state -> state.copy(profile = state.profile.copy(name = session.user.name, email = session.user.email, styleProfile = session.user.styleProfile), credits = session.user.credits, isConnected = true, isAuthOpen = false, message = "Wardrobe connected") }
-                    syncInternal(seedWhenEmpty = true)
+                    connectSession(session)
                 }
                 .onFailure { error -> mutableState.update { it.copy(isSyncing = false, authError = error.message ?: "Could not connect to Almi backend") } }
+        }
+    }
+    override fun completeGoogleSignIn(code: String) {
+        val service = api ?: return
+        mutableState.update { it.copy(isSyncing = true, authError = null) }
+        scope.launch {
+            runCatching { service.exchangeGoogleCode(code) }
+                .onSuccess { connectSession(it) }
+                .onFailure { error -> mutableState.update { it.copy(isSyncing = false, authError = error.message ?: "Google sign-in failed. Try again.") } }
         }
     }
     override fun signOut() { api?.signOut(); HomeStateStorage.writeToken(null); mutableState.update { it.copy(isConnected = false, message = "Signed out of sync") } }
@@ -180,6 +197,11 @@ class DefaultHomeComponent(private val api: AlmiApi? = null) : HomeComponent {
 
     private fun replaceItem(localId: String, item: WardrobeItem) = mutableState.update { state -> state.copy(rails = state.rails.map { rail -> rail.copy(items = rail.items.map { if (it.id == localId) item else it }) }) }
     private fun showNetworkError(error: Throwable) = mutableState.update { it.copy(message = error.message ?: "Sync failed. Your local changes are safe.") }
+    private fun connectSession(session: SessionDto) {
+        HomeStateStorage.writeToken(session.token)
+        mutableState.update { state -> state.copy(profile = state.profile.copy(name = session.user.name, email = session.user.email, styleProfile = session.user.styleProfile), credits = session.user.credits, isConnected = true, isAuthOpen = false, isSyncing = false, authError = null, message = "Wardrobe connected") }
+        scope.launch { syncInternal(seedWhenEmpty = true) }
+    }
 }
 
 private fun WardrobeItem.toInput(slot: WardrobeSlot) = GarmentInput(name, slot.name.uppercase(), shape.name.uppercase(), "#" + colorValue.toString(16).takeLast(6).uppercase(), null, brand)

@@ -13,6 +13,8 @@ struct ContentView: View {
     var body: some View {
         ComposeView()
             .ignoresSafeArea()
-            .preferredColorScheme(.light)
+            .onOpenURL { url in
+                GoogleAuthBridgeKt.handleGoogleAuthRedirect(url: url.absoluteString)
+            }
     }
 }

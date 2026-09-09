@@ -29,3 +29,5 @@ Open the project in Android Studio and run `composeApp`, or open `iosApp/iosApp.
 ```
 
 The Android emulator connects to `http://10.0.2.2:8080`; the iOS simulator uses `http://127.0.0.1:8080`. Start the backend before using Cloud sync. Local wardrobe actions continue to work when the backend is unavailable.
+
+For local Google sign-in on the Android emulator, run `adb reverse tcp:8080 tcp:8080` so Google's localhost callback can reach the backend. Configure the backend's Google OAuth variables before launching the flow. A deployed build should replace the development URLs with the public HTTPS API URL.

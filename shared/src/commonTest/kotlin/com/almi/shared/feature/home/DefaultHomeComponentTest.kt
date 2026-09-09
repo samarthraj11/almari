@@ -1,5 +1,7 @@
 package com.almi.shared.feature.home
 
+import com.almi.shared.data.GoogleAuthBridge
+import com.almi.shared.data.handleGoogleAuthRedirect
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -54,5 +56,14 @@ class DefaultHomeComponentTest {
 
         assertEquals(HomeTab.Outfit, component.state.value.selectedTab)
         assertEquals(!wasDark, component.state.value.profile.isDarkMode)
+    }
+
+    @Test
+    fun googleDeepLinkCapturesOneTimeExchangeCode() {
+        GoogleAuthBridge.clear()
+        handleGoogleAuthRedirect("almi://auth?code=123e4567-e89b-12d3-a456-426614174000")
+
+        assertEquals("123e4567-e89b-12d3-a456-426614174000", GoogleAuthBridge.pending.value?.code)
+        GoogleAuthBridge.clear()
     }
 }
