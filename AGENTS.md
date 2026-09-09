@@ -1,6 +1,6 @@
-# Almi Project Guidelines
+# Almari Project Guidelines
 
-Almi is a Compose Multiplatform wardrobe and outfit-planning app for Android and iOS.
+Almari is a Compose Multiplatform wardrobe and outfit-planning app for Android and iOS.
 
 ## Structure
 

@@ -2,7 +2,7 @@
 
 An India-first wardrobe and outfit studio built with Compose Multiplatform.
 
-The app turns a wardrobe into five mixable rails—head, top, layer, bottom, and shoes—with per-rail locking and a one-tap outfit shuffle. Closet, Saved, and Profile follow the supplied Almi design system and work offline first.
+The app turns a wardrobe into five mixable rails—head, top, layer, bottom, and shoes—with per-rail locking and a one-tap outfit shuffle. Closet, Saved, and Profile follow the supplied Almari design system and work offline first.
 
 ## Working flows
 
@@ -10,14 +10,14 @@ The app turns a wardrobe into five mixable rails—head, top, layer, bottom, and
 - Search/filter the closet, inspect pieces, style one into a look, or remove it
 - Save, favorite, wear, delete, and reopen looks in Outfit Studio
 - Edit profile and switch between persistent light/dark appearance
-- Register/login and sync garments, photos, looks, credits, and profile with `almi-backend`
+- Register/login and sync garments, photos, looks, credits, and profile with `almari-backend`
 
 ## Modules
 
 - `composeApp` — Android entry point and iOS framework
 - `iosApp` — SwiftUI host
 - `shared` — state and outfit-mixing behavior
-- `core:designsystem` — Almi tokens, theme, logo, and reusable UI
+- `core:designsystem` — Almari tokens, theme, logo, and reusable UI
 - `feature:home` — home screen
 
 ## Run

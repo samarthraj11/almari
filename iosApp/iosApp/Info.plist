@@ -6,17 +6,17 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>com.almi.app.google-auth</string>
+			<string>com.almari.app.google-auth</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>almi</string>
+				<string>almari</string>
 			</array>
 		</dict>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>Almi uses the camera to add clothing to your digital wardrobe.</string>
+	<string>Almari uses the camera to add clothing to your digital wardrobe.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Almi uses selected photos to create garment cards in your wardrobe.</string>
+	<string>Almari uses selected photos to create garment cards in your wardrobe.</string>
 	<key>NSAppTransportSecurity</key>
     <dict>
         <key>NSAllowsLocalNetworking</key>

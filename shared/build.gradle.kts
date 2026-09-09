@@ -31,7 +31,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.almi.shared"
+    namespace = "com.almari.shared"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig.minSdk = libs.versions.android.minSdk.get().toInt()
     compileOptions {

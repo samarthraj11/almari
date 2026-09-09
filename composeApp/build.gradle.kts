@@ -42,11 +42,11 @@ kotlin {
 }
 
 android {
-    namespace = "com.almi.app"
+    namespace = "com.almari.app"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.almi.app"
+        applicationId = "com.almari.app"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1

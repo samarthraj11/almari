@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		AA0000010000000000000001 /* Almi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Almi.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000010000000000000001 /* Almari.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Almari.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -59,7 +59,7 @@
 		AA0000080000000000000001 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AA0000010000000000000001 /* Almi.app */,
+				AA0000010000000000000001 /* Almari.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -84,8 +84,8 @@
 				AA0000030000000000000001 /* iosApp */,
 			);
 			name = iosApp;
-			productName = Almi;
-			productReference = AA0000010000000000000001 /* Almi.app */;
+			productName = Almari;
+			productReference = AA0000010000000000000001 /* Almari.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -167,7 +167,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iosApp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Almi;
+				INFOPLIST_KEY_CFBundleDisplayName = Almari;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -191,7 +191,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iosApp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Almi;
+				INFOPLIST_KEY_CFBundleDisplayName = Almari;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

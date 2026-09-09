@@ -31,7 +31,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.almi.feature.home"
+    namespace = "com.almari.feature.home"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig.minSdk = libs.versions.android.minSdk.get().toInt()
     compileOptions {

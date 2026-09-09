@@ -26,7 +26,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.almi.core.designsystem"
+    namespace = "com.almari.core.designsystem"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig.minSdk = libs.versions.android.minSdk.get().toInt()
     compileOptions {
