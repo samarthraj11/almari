@@ -32,6 +32,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -54,6 +55,7 @@ import com.almi.core.designsystem.components.AlmiLogo
 import com.almi.feature.home.components.WardrobeRailCard
 import com.almi.shared.feature.home.HomeComponent
 import com.almi.shared.feature.home.HomeTab
+import kotlinx.coroutines.delay
 
 @Composable
 fun HomeScreen(
@@ -63,43 +65,65 @@ fun HomeScreen(
     val state by component.state.collectAsState()
     val colors = LocalAlmiColors.current
 
-    Column(
+    Box(
         modifier = modifier
             .fillMaxSize()
             .background(colors.white)
             .statusBarsPadding(),
     ) {
-        HomeHeader(credits = state.credits)
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                horizontal = LocalAlmiSpacing.current.md,
-                vertical = LocalAlmiSpacing.current.xs,
-            ),
-            verticalArrangement = Arrangement.spacedBy(LocalAlmiSpacing.current.xs),
-        ) {
-            items(state.rails, key = { it.slot.name }) { rail ->
-                WardrobeRailCard(
-                    rail = rail,
-                    onPrevious = { component.move(rail.slot, -1) },
-                    onNext = { component.move(rail.slot, 1) },
-                    onToggleLock = { component.toggleLock(rail.slot) },
-                )
+        Column(Modifier.fillMaxSize()) {
+            if (state.selectedTab == HomeTab.Outfit) HomeHeader(credits = state.credits, onOpenPreferences = { component.selectTab(HomeTab.Profile) }) else BrandBar(state.credits, state.profile.name)
+            Box(Modifier.weight(1f).fillMaxWidth()) {
+                when (state.selectedTab) {
+                    HomeTab.Outfit -> Column(Modifier.fillMaxSize()) {
+                        LazyColumn(
+                            modifier = Modifier.weight(1f).fillMaxWidth(),
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = LocalAlmiSpacing.current.md, vertical = LocalAlmiSpacing.current.xs),
+                            verticalArrangement = Arrangement.spacedBy(LocalAlmiSpacing.current.xs),
+                        ) {
+                            items(state.rails, key = { it.slot.name }) { rail -> WardrobeRailCard(rail, { component.move(rail.slot, -1) }, { component.move(rail.slot, 1) }, { component.toggleLock(rail.slot) }) }
+                        }
+                        Text(
+                            text = "SAVE THIS LOOK",
+                            color = LocalAlmiColors.current.cobalt,
+                            style = LocalAlmiTypography.current.button,
+                            modifier = Modifier.fillMaxWidth().clickable { component.saveCurrentOutfit("Almi Mix ${state.savedOutfits.size + 1}") }.padding(vertical = 8.dp),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        )
+                        ShuffleBar(onShuffle = component::shuffle)
+                    }
+                    HomeTab.Closet -> ClosetScreen(state, component)
+                    HomeTab.Capture -> ClosetScreen(state, component)
+                    HomeTab.Saved -> SavedScreen(state, component)
+                    HomeTab.Profile -> ProfileScreen(state, component)
+                }
             }
+            BottomNavigation(selectedTab = state.selectedTab, onSelectTab = component::selectTab)
         }
-        ShuffleBar(onShuffle = component::shuffle)
-        BottomNavigation(
-            selectedTab = state.selectedTab,
-            onSelectTab = component::selectTab,
-        )
+        state.message?.let { message ->
+            LaunchedEffect(message) { delay(1800); component.clearMessage() }
+            Text(message, color = colors.white, style = LocalAlmiTypography.current.body, modifier = Modifier.align(Alignment.TopCenter).padding(top = 54.dp).background(colors.ink, CircleShape).padding(horizontal = 16.dp, vertical = 10.dp))
+        }
+    }
+}
+
+@Composable
+private fun BrandBar(credits: Int, name: String) {
+    Row(Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 20.dp), Arrangement.SpaceBetween, Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            AlmiLogo(size = 30.dp); Spacer(Modifier.width(7.dp)); Text("ALMI.", style = LocalAlmiTypography.current.brand)
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("$credits CREDITS", color = LocalAlmiColors.current.cobalt, style = LocalAlmiTypography.current.caption, modifier = Modifier.background(LocalAlmiColors.current.cobaltSoft, CircleShape).padding(horizontal = 10.dp, vertical = 6.dp))
+            Spacer(Modifier.width(8.dp)); Box(Modifier.size(30.dp).background(LocalAlmiColors.current.ink, CircleShape), Alignment.Center) { Text(name.take(2).uppercase(), color = LocalAlmiColors.current.lime, style = LocalAlmiTypography.current.caption) }
+        }
     }
 }
 
 @Composable
 private fun HomeHeader(
     credits: Int,
+    onOpenPreferences: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -189,7 +213,7 @@ private fun HomeHeader(
                 }
             }
             IconButton(
-                onClick = {},
+                onClick = onOpenPreferences,
                 modifier = Modifier
                     .size(LocalAlmiSizes.current.tapTarget)
                     .background(LocalAlmiColors.current.cloud, CircleShape),

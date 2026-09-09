@@ -18,3 +18,18 @@ data class AlmiColors(
     val denim: Color = Color(0xFF456A9E),
     val cream: Color = Color(0xFFF1E4C8),
 )
+
+fun darkAlmiColors() = AlmiColors(
+    ink = Color(0xFFF5F7FF),
+    cobalt = Color(0xFF9CB4FF),
+    cobaltPressed = Color(0xFFB4C5FF),
+    cobaltSoft = Color(0xFF24345D),
+    cloud = Color(0xFF20283A),
+    white = Color(0xFF131B2E),
+    muted = Color(0xFFAEB7CC),
+    border = Color(0xFF35405A),
+    lime = Color(0xFFC8FF45),
+    warmBrown = Color(0xFFB98568),
+    denim = Color(0xFF7695C4),
+    cream = Color(0xFFE7D8B9),
+)

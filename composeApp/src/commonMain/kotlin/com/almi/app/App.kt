@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -27,13 +28,15 @@ import com.almi.core.designsystem.LocalAlmiTypography
 import com.almi.core.designsystem.components.AlmiLogo
 import com.almi.feature.home.HomeScreen
 import com.almi.shared.feature.home.DefaultHomeComponent
+import com.almi.shared.data.createAlmiApi
 import kotlinx.coroutines.delay
 
 @Composable
 fun App() {
-    AlmiTheme {
+    val homeComponent = remember { DefaultHomeComponent(createAlmiApi()) }
+    val homeState by homeComponent.state.collectAsState()
+    AlmiTheme(darkTheme = homeState.profile.isDarkMode) {
         var showSplash by remember { mutableStateOf(true) }
-        val homeComponent = remember { DefaultHomeComponent() }
 
         LaunchedEffect(Unit) {
             delay(SPLASH_DURATION_MILLIS)

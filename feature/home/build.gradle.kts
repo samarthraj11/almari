@@ -23,6 +23,9 @@ kotlin {
             implementation(libs.compose.material3)
             implementation(libs.compose.ui)
             implementation(libs.compose.material.icons.extended)
+            implementation(libs.filekit.dialogs.compose)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor3)
         }
     }
 }

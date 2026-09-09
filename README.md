@@ -2,7 +2,15 @@
 
 An India-first wardrobe and outfit studio built with Compose Multiplatform.
 
-The first prototype turns a wardrobe into five mixable rails—head, top, layer, bottom, and shoes—with per-rail locking and a one-tap outfit shuffle.
+The app turns a wardrobe into five mixable rails—head, top, layer, bottom, and shoes—with per-rail locking and a one-tap outfit shuffle. Closet, Saved, and Profile follow the supplied Almi design system and work offline first.
+
+## Working flows
+
+- Capture a garment with the camera or choose one from the native photo library
+- Search/filter the closet, inspect pieces, style one into a look, or remove it
+- Save, favorite, wear, delete, and reopen looks in Outfit Studio
+- Edit profile and switch between persistent light/dark appearance
+- Register/login and sync garments, photos, looks, credits, and profile with `almi-backend`
 
 ## Modules
 
@@ -19,3 +27,5 @@ Open the project in Android Studio and run `composeApp`, or open `iosApp/iosApp.
 ```bash
 ./gradlew :composeApp:assembleDebug
 ```
+
+The Android emulator connects to `http://10.0.2.2:8080`; the iOS simulator uses `http://127.0.0.1:8080`. Start the backend before using Cloud sync. Local wardrobe actions continue to work when the backend is unavailable.

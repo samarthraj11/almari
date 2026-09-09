@@ -1,0 +1,7 @@
+package com.almi.shared.data
+
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
+
+actual fun platformHttpClient(): HttpClient = HttpClient(OkHttp)
+actual val defaultApiBaseUrl: String = "http://10.0.2.2:8080"
