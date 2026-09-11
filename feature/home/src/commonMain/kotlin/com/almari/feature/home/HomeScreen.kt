@@ -114,7 +114,7 @@ private fun BrandBar(credits: Int, name: String) {
             AlmariLogo(size = 30.dp); Spacer(Modifier.width(7.dp)); Text("ALMARI.", style = LocalAlmariTypography.current.brand)
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("$credits CREDITS", color = LocalAlmariColors.current.cobalt, style = LocalAlmariTypography.current.caption, modifier = Modifier.background(LocalAlmariColors.current.cobaltSoft, CircleShape).padding(horizontal = 10.dp, vertical = 6.dp))
+            Text("$credits  CREDITS", color = LocalAlmariColors.current.cobalt, style = LocalAlmariTypography.current.caption, modifier = Modifier.background(LocalAlmariColors.current.cobaltSoft, CircleShape).padding(horizontal = 10.dp, vertical = 6.dp))
             Spacer(Modifier.width(8.dp)); Box(Modifier.size(30.dp).background(LocalAlmariColors.current.ink, CircleShape), Alignment.Center) { Text(name.take(2).uppercase(), color = LocalAlmariColors.current.lime, style = LocalAlmariTypography.current.caption) }
         }
     }
