@@ -10,8 +10,6 @@ import kotlinx.serialization.json.Json
 expect object HomeStateStorage {
     fun read(): String?
     fun write(value: String)
-    fun readToken(): String?
-    fun writeToken(value: String?)
 }
 
 @Serializable

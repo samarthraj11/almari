@@ -1,7 +1,7 @@
 package com.almari.shared.feature.home
 
-import com.almari.shared.data.GoogleAuthBridge
-import com.almari.shared.data.handleGoogleAuthRedirect
+import com.almari.shared.data.FirebaseAuthBridge
+import com.almari.shared.data.handleFirebaseUser
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -59,11 +59,12 @@ class DefaultHomeComponentTest {
     }
 
     @Test
-    fun googleDeepLinkCapturesOneTimeExchangeCode() {
-        GoogleAuthBridge.clear()
-        handleGoogleAuthRedirect("almari://auth?code=123e4567-e89b-12d3-a456-426614174000")
+    fun firebaseCredentialCapturesUser() {
+        FirebaseAuthBridge.clear()
+        handleFirebaseUser("firebase-user", "sam@example.com", "Sam")
 
-        assertEquals("123e4567-e89b-12d3-a456-426614174000", GoogleAuthBridge.pending.value?.code)
-        GoogleAuthBridge.clear()
+        assertEquals("firebase-user", FirebaseAuthBridge.pending.value?.user?.uid)
+        assertEquals("sam@example.com", FirebaseAuthBridge.pending.value?.user?.email)
+        FirebaseAuthBridge.clear()
     }
 }

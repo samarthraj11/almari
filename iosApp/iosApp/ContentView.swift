@@ -13,8 +13,5 @@ struct ContentView: View {
     var body: some View {
         ComposeView()
             .ignoresSafeArea()
-            .onOpenURL { url in
-                GoogleAuthBridgeKt.handleGoogleAuthRedirect(url: url.absoluteString)
-            }
     }
 }

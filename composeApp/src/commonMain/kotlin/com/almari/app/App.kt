@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.platform.LocalUriHandler
 import com.almari.core.designsystem.AlmariTheme
 import com.almari.core.designsystem.LocalAlmariColors
 import com.almari.core.designsystem.LocalAlmariSpacing
@@ -30,15 +29,12 @@ import com.almari.core.designsystem.components.AlmariLogo
 import com.almari.feature.home.HomeScreen
 import com.almari.feature.home.OnboardingScreen
 import com.almari.shared.feature.home.DefaultHomeComponent
-import com.almari.shared.data.createAlmariApi
-import com.almari.shared.data.defaultGoogleAuthStartUrl
 import kotlinx.coroutines.delay
 
 @Composable
-fun App() {
-    val homeComponent = remember { DefaultHomeComponent(createAlmariApi()) }
+fun App(onNativeGoogleSignIn: (() -> Unit)? = null) {
+    val homeComponent = remember { DefaultHomeComponent() }
     val homeState by homeComponent.state.collectAsState()
-    val uriHandler = LocalUriHandler.current
     AlmariTheme(darkTheme = homeState.profile.isDarkMode) {
         var showSplash by remember { mutableStateOf(true) }
 
@@ -58,7 +54,10 @@ fun App() {
                 OnboardingScreen(
                     isLoading = homeState.isSyncing,
                     error = homeState.authError,
-                    onContinueWithGoogle = { uriHandler.openUri(defaultGoogleAuthStartUrl) },
+                    isGoogleSignInAvailable = onNativeGoogleSignIn != null,
+                    onContinueWithGoogle = {
+                        onNativeGoogleSignIn?.let { signIn -> homeComponent.beginGoogleSignIn(signIn) }
+                    },
                 )
             } else {
                 HomeScreen(component = homeComponent)
