@@ -202,13 +202,12 @@ internal fun ProfileScreen(state: HomeState, component: HomeComponent, modifier:
                 Icon(Icons.Rounded.Edit, "Edit profile", tint = LocalAlmariColors.current.muted)
             }
         }
-        item { SectionLabel("ACCOUNT"); SettingsCard { SettingsRow(Icons.Rounded.Badge, "Display name", state.profile.name) { component.showProfileEditor(true) }; SettingsRow(Icons.Rounded.Mail, "Email", state.profile.email); SettingsRow(Icons.Rounded.CloudSync, "Cloud sync", when { state.isSyncing -> "Syncing…"; state.isConnected -> "Connected"; else -> "Connect" }) { component.sync() }; if (state.isConnected) SettingsRow(Icons.AutoMirrored.Rounded.Logout, "Sign out", "") { component.signOut() } } }
+        item { SectionLabel("ACCOUNT"); SettingsCard { SettingsRow(Icons.Rounded.Badge, "Display name", state.profile.name) { component.showProfileEditor(true) }; SettingsRow(Icons.Rounded.Mail, "Email", state.profile.email); SettingsRow(Icons.Rounded.CloudOff, "Wardrobe storage", "On this device"); if (state.isConnected) SettingsRow(Icons.AutoMirrored.Rounded.Logout, "Sign out", "") { component.signOut() } } }
         item { SectionLabel("PREFERENCES"); SettingsCard { SettingsRow(Icons.Rounded.Palette, "Default aesthetic", state.profile.styleProfile) { component.showProfileEditor(true) }; SettingsRow(if (state.profile.isDarkMode) Icons.Rounded.DarkMode else Icons.Rounded.LightMode, "Appearance", if (state.profile.isDarkMode) "Dark" else "Light", component::toggleAppearance) } }
         item { SectionLabel("WARDROBE & STORAGE"); SettingsCard { SettingsRow(Icons.Rounded.Checkroom, "Indexed wardrobe", "${state.garments.size} items") { component.selectTab(HomeTab.Closet) }; SettingsRow(Icons.Rounded.Bookmarks, "Saved looks", "${state.savedOutfits.size} looks") { component.selectTab(HomeTab.Saved) } } }
         item { SectionLabel("SUPPORT"); SettingsCard { SettingsRow(Icons.AutoMirrored.Rounded.HelpOutline, "Help & FAQ", "Coming soon"); SettingsRow(Icons.Rounded.Shield, "Privacy & terms", "Coming soon"); SettingsRow(Icons.Rounded.Info, "Version", "0.1.0") } }
     }
     if (state.isEditingProfile) ProfileEditDialog(state, component)
-    if (state.isAuthOpen) AuthDialog(state, component)
 }
 
 @Composable private fun SectionLabel(text: String) = Text(text, color = LocalAlmariColors.current.muted, style = LocalAlmariTypography.current.label, modifier = Modifier.padding(start = 4.dp, bottom = 7.dp))
@@ -218,22 +217,4 @@ internal fun ProfileScreen(state: HomeState, component: HomeComponent, modifier:
 @Composable private fun ProfileEditDialog(state: HomeState, component: HomeComponent) {
     var name by remember { mutableStateOf(state.profile.name) }; var style by remember { mutableStateOf(state.profile.styleProfile) }
     AlertDialog(onDismissRequest = { component.showProfileEditor(false) }, title = { Text("Edit profile") }, text = { Column(verticalArrangement = Arrangement.spacedBy(10.dp)) { OutlinedTextField(name, { name = it }, label = { Text("Display name") }); OutlinedTextField(style, { style = it }, label = { Text("Default aesthetic") }) } }, confirmButton = { TextButton({ component.updateProfile(name, style) }, enabled = name.isNotBlank() && style.isNotBlank()) { Text("SAVE CHANGES") } }, dismissButton = { TextButton({ component.showProfileEditor(false) }) { Text("CANCEL") } })
-}
-
-@Composable private fun AuthDialog(state: HomeState, component: HomeComponent) {
-    var name by remember { mutableStateOf("") }; var email by remember { mutableStateOf("") }; var password by remember { mutableStateOf("") }; var register by remember { mutableStateOf(false) }
-    AlertDialog(
-        onDismissRequest = { if (!state.isSyncing) component.showAuth(false) },
-        title = { Text(if (register) "Create your Almari account" else "Connect your wardrobe") },
-        text = { Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
-            Text("Sync clothes and saved looks across Android and iPhone.", color = LocalAlmariColors.current.muted)
-            if (register) OutlinedTextField(name, { name = it }, label = { Text("Name") }, singleLine = true)
-            OutlinedTextField(email, { email = it }, label = { Text("Email") }, singleLine = true)
-            OutlinedTextField(password, { password = it }, label = { Text("Password") }, singleLine = true)
-            state.authError?.let { Text(it, color = Color(0xFFDC2626), style = LocalAlmariTypography.current.caption) }
-            TextButton({ register = !register }) { Text(if (register) "I already have an account" else "Create an account") }
-        } },
-        confirmButton = { Button({ component.authenticate(name, email, password, register) }, enabled = !state.isSyncing && email.contains('@') && password.length >= 8 && (!register || name.length >= 2)) { Text(if (state.isSyncing) "CONNECTING…" else if (register) "CREATE ACCOUNT" else "CONNECT") } },
-        dismissButton = { TextButton({ component.showAuth(false) }, enabled = !state.isSyncing) { Text("NOT NOW") } },
-    )
 }

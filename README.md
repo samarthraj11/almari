@@ -10,7 +10,8 @@ The app turns a wardrobe into five mixable rails—head, top, layer, bottom, and
 - Search/filter the closet, inspect pieces, style one into a look, or remove it
 - Save, favorite, wear, delete, and reopen looks in Outfit Studio
 - Edit profile and switch between persistent light/dark appearance
-- Register/login and sync garments, photos, looks, credits, and profile with `almari-backend`
+- Sign in with Google through Firebase Authentication on Android
+- Keep garments, photos, looks, preferences, and profile data on the device
 
 ## Modules
 
@@ -28,6 +29,10 @@ Open the project in Android Studio and run `composeApp`, or open `iosApp/iosApp.
 ./gradlew :composeApp:assembleDebug
 ```
 
-The Android emulator connects to `http://10.0.2.2:8080`; the iOS simulator uses `http://127.0.0.1:8080`. Start the backend before using Cloud sync. Local wardrobe actions continue to work when the backend is unavailable.
+The current app is deliberately offline-first and does not connect to `almari-backend`. Google sign-in uses Android Credential Manager's native account chooser and Firebase Authentication locally. Wardrobe data stays on the device. Google sign-in is temporarily Android-only; iOS displays the onboarding screen without starting a browser flow.
 
-For local Google sign-in on the Android emulator, run `adb reverse tcp:8080 tcp:8080` so Google's localhost callback can reach the backend. Configure the backend's Google OAuth variables before launching the flow. A deployed build should replace the development URLs with the public HTTPS API URL.
+Register an Android app with package `com.almari.app` in the Firebase project, add the signing certificate SHA-1, enable the Google provider under Firebase Authentication, download the generated `google-services.json`, and place it at `composeApp/google-services.json`. For the local debug certificate, print it with:
+
+```bash
+keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
+```

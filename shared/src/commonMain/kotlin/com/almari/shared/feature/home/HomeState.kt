@@ -44,7 +44,6 @@ data class HomeState(
     val selectedOutfitId: String? = null,
     val isAddGarmentOpen: Boolean = false,
     val isEditingProfile: Boolean = false,
-    val isAuthOpen: Boolean = false,
     val isConnected: Boolean = false,
     val isSyncing: Boolean = false,
     val authError: String? = null,

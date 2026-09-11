@@ -25,10 +25,7 @@ interface HomeComponent {
     fun showProfileEditor(show: Boolean)
     fun updateProfile(name: String, styleProfile: String)
     fun toggleAppearance()
-    fun showAuth(show: Boolean)
-    fun authenticate(name: String, email: String, password: String, register: Boolean)
-    fun completeGoogleSignIn(code: String)
+    fun beginGoogleSignIn(onReady: () -> Unit)
     fun signOut()
-    fun sync()
     fun clearMessage()
 }

@@ -2,17 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>com.almari.app.google-auth</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>almari</string>
-			</array>
-		</dict>
-	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>Almari uses the camera to add clothing to your digital wardrobe.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

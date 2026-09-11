@@ -33,6 +33,7 @@ import com.almari.shared.feature.home.GarmentShape
 fun OnboardingScreen(
     isLoading: Boolean,
     error: String?,
+    isGoogleSignInAvailable: Boolean,
     onContinueWithGoogle: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -73,7 +74,7 @@ fun OnboardingScreen(
 
         OutlinedButton(
             onClick = onContinueWithGoogle,
-            enabled = !isLoading,
+            enabled = isGoogleSignInAvailable && !isLoading,
             modifier = Modifier.fillMaxWidth().padding(top = 20.dp).height(54.dp).shadow(2.dp, CircleShape),
             shape = CircleShape,
             colors = ButtonDefaults.outlinedButtonColors(containerColor = colors.white, contentColor = colors.ink),
@@ -83,7 +84,11 @@ fun OnboardingScreen(
             else {
                 GoogleMark()
                 Spacer(Modifier.width(11.dp))
-                Text("Continue with Google", fontWeight = FontWeight.SemiBold, style = LocalAlmariTypography.current.body)
+                Text(
+                    if (isGoogleSignInAvailable) "Continue with Google" else "Google sign-in coming to iOS",
+                    fontWeight = FontWeight.SemiBold,
+                    style = LocalAlmariTypography.current.body,
+                )
             }
         }
         Text("By continuing, you agree to Almari's Terms and Privacy Policy.", color = colors.muted, textAlign = TextAlign.Center, style = LocalAlmariTypography.current.caption, modifier = Modifier.padding(top = 11.dp, bottom = 24.dp))
