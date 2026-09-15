@@ -22,6 +22,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -32,6 +35,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.BrokenImage
 import androidx.compose.material.icons.rounded.CameraAlt
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
@@ -43,6 +48,7 @@ import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -63,6 +69,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import com.almari.core.designsystem.LocalAlmariColors
 import com.almari.feature.home.components.NeonAction
 import com.almari.feature.home.components.StudioChip
@@ -74,6 +81,7 @@ import com.almari.shared.feature.home.HomeState
 import com.almari.shared.feature.home.HomeTab
 import com.almari.shared.feature.home.SavedFilter
 import com.almari.shared.feature.home.SavedOutfit
+import com.almari.shared.feature.home.TryOnStage
 import com.almari.shared.feature.home.WardrobeSlot
 import org.jetbrains.compose.resources.painterResource
 
@@ -139,7 +147,135 @@ internal fun OutfitStudioScreen(state: HomeState, component: HomeComponent) {
             ) {
                 Icon(Icons.Rounded.Save, "Save this fit", tint = colors.studioInk)
             }
-            NeonAction(label = "SHUFFLE", onClick = component::shuffle, modifier = Modifier.weight(1f))
+            NeonAction(label = "TRY IT ON", onClick = component::tryOn, modifier = Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+internal fun AiTryOnScreen(state: HomeState, component: HomeComponent) {
+    val colors = LocalAlmariColors.current
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colors.studioBackground)
+            .windowInsetsPadding(WindowInsets.safeDrawing)
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            IconButton(onClick = component::dismantleTryOn) {
+                Icon(Icons.Rounded.ArrowBack, "Back to Outfit Studio", tint = colors.studioInk)
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("TRY IT ON", color = colors.studioInk, fontSize = 24.sp, fontWeight = FontWeight.Black)
+                Icon(
+                    Icons.Rounded.AutoAwesome,
+                    contentDescription = null,
+                    tint = colors.electricBlue,
+                    modifier = Modifier.padding(start = 7.dp).size(23.dp),
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .background(colors.softLilac, CircleShape)
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
+            ) {
+                Text("AI PREVIEW", color = colors.studioInk, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .padding(top = 10.dp)
+                .weight(1f)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(28.dp))
+                .background(
+                    Brush.verticalGradient(
+                        listOf(colors.softLilac, colors.softPink, colors.butterTint),
+                    ),
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            when (state.tryOnStage) {
+                TryOnStage.Generating -> TryOnLoading(state)
+                TryOnStage.Ready -> AsyncImage(
+                    model = state.tryOnImageUrl,
+                    contentDescription = "AI model wearing the selected outfit",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                )
+                TryOnStage.Error -> Column(
+                    modifier = Modifier.padding(30.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Icon(Icons.Rounded.BrokenImage, null, tint = colors.studioInk, modifier = Modifier.size(48.dp))
+                    Spacer(Modifier.height(14.dp))
+                    Text(
+                        state.tryOnError ?: "AI try-on could not be created.",
+                        color = colors.studioInk,
+                        fontSize = 15.sp,
+                        lineHeight = 21.sp,
+                    )
+                    Spacer(Modifier.height(18.dp))
+                    NeonAction(label = "TRY AGAIN", onClick = component::retryTryOn)
+                }
+                TryOnStage.Hidden -> Unit
+            }
+        }
+
+        if (state.tryOnStage == TryOnStage.Ready) {
+            Text(
+                "Built from your ${state.tryOnItems.size} selected pieces",
+                color = colors.studioMuted,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(top = 9.dp, bottom = 9.dp).align(Alignment.CenterHorizontally),
+            )
+            NeonAction(
+                label = "ADD TO SAVED FITS",
+                onClick = component::saveTryOn,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 9.dp)
+                    .height(50.dp)
+                    .border(1.dp, colors.studioInk, RoundedCornerShape(25.dp))
+                    .clickable(onClick = component::dismantleTryOn),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text("DISMANTLE", color = colors.studioInk, fontSize = 13.sp, fontWeight = FontWeight.Black)
+            }
+        }
+    }
+}
+
+@Composable
+private fun TryOnLoading(state: HomeState) {
+    val colors = LocalAlmariColors.current
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        CircularProgressIndicator(color = colors.electricBlue, trackColor = Color.White.copy(alpha = 0.7f))
+        Spacer(Modifier.height(18.dp))
+        Text("DRESSING YOUR MODEL", color = colors.studioInk, fontSize = 16.sp, fontWeight = FontWeight.Black)
+        Spacer(Modifier.height(5.dp))
+        Text("Matching shape, colour and layers…", color = colors.studioMuted, fontSize = 12.sp)
+        Row(
+            modifier = Modifier.padding(top = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
+        ) {
+            state.tryOnItems.forEach { item ->
+                Box(
+                    modifier = Modifier.size(47.dp).background(Color.White.copy(alpha = 0.7f), RoundedCornerShape(13.dp)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    StudioGarmentVisual(item, Modifier.fillMaxSize())
+                }
+            }
         }
     }
 }
@@ -326,28 +462,37 @@ private fun SavedFitCard(outfit: SavedOutfit, component: HomeComponent) {
                 .background(Color.White.copy(alpha = 0.38f), RoundedCornerShape(17.dp)),
             contentAlignment = Alignment.Center,
         ) {
-            outfit.items.take(3).forEachIndexed { index, item ->
-                StudioGarmentVisual(
-                    item = item,
-                    modifier = Modifier
-                        .align(
-                            when (index) {
-                                0 -> Alignment.TopCenter
-                                1 -> Alignment.BottomStart
-                                else -> Alignment.BottomEnd
-                            },
-                        )
-                        .size(if (index == 0) 105.dp else 64.dp),
+            if (outfit.previewImageUrl != null) {
+                AsyncImage(
+                    model = outfit.previewImageUrl,
+                    contentDescription = outfit.name,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                )
+            } else {
+                outfit.items.take(3).forEachIndexed { index, item ->
+                    StudioGarmentVisual(
+                        item = item,
+                        modifier = Modifier
+                            .align(
+                                when (index) {
+                                    0 -> Alignment.TopCenter
+                                    1 -> Alignment.BottomStart
+                                    else -> Alignment.BottomEnd
+                                },
+                            )
+                            .size(if (index == 0) 105.dp else 64.dp),
+                    )
+                }
+                Image(
+                    painter = painterResource(
+                        if (outfit.id.hashCode() % 2 == 0) Res.drawable.garment_pink_bag else Res.drawable.garment_black_bag,
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier.align(Alignment.BottomEnd).size(55.dp),
+                    contentScale = ContentScale.Fit,
                 )
             }
-            Image(
-                painter = painterResource(
-                    if (outfit.id.hashCode() % 2 == 0) Res.drawable.garment_pink_bag else Res.drawable.garment_black_bag,
-                ),
-                contentDescription = null,
-                modifier = Modifier.align(Alignment.BottomEnd).size(55.dp),
-                contentScale = ContentScale.Fit,
-            )
         }
         Column(Modifier.padding(start = 13.dp).weight(1f).fillMaxHeight()) {
             Text(

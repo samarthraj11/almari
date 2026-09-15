@@ -10,9 +10,11 @@ import almari.feature.home.generated.resources.garment_pink_cardigan_small
 import almari.feature.home.generated.resources.garment_pink_heels
 import almari.feature.home.generated.resources.garment_white_sneakers
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -35,33 +37,28 @@ internal fun StudioGarmentVisual(
             contentScale = contentScale,
             modifier = modifier.padding(6.dp),
         )
-    } else {
+    } else if (studioDrawable(item) != null) {
         Image(
-            painter = painterResource(studioDrawable(item)),
+            painter = painterResource(studioDrawable(item)!!),
             contentDescription = item.name,
             contentScale = contentScale,
             modifier = modifier.padding(4.dp),
         )
+    } else {
+        Box(modifier = modifier.padding(7.dp)) {
+            GarmentIllustration(item.shape, Color(item.colorValue), Modifier.matchParentSize())
+        }
     }
 }
 
-private fun studioDrawable(item: WardrobeItem): DrawableResource = when (item.id) {
-    "head-indigo", "head-olive" -> Res.drawable.garment_pink_beret
-    "top-kurta", "top-sage" -> Res.drawable.garment_cream_top
-    "top-shirt" -> Res.drawable.garment_pink_cardigan_small
-    "layer-brown", "layer-ink" -> Res.drawable.garment_pink_cardigan_large
-    "layer-denim" -> Res.drawable.garment_pink_cardigan_small
-    "bottom-denim", "bottom-skirt" -> Res.drawable.garment_denim_skirt
-    "bottom-black" -> Res.drawable.garment_denim_skirt
-    "shoes-street" -> Res.drawable.garment_white_sneakers
-    "shoes-blue" -> Res.drawable.garment_pink_heels
-    "shoes-tan" -> Res.drawable.garment_black_boots
-    else -> when (item.shape) {
-        GarmentShape.Cap -> Res.drawable.garment_pink_beret
-        GarmentShape.Kurta, GarmentShape.Shirt -> Res.drawable.garment_cream_top
-        GarmentShape.Jacket -> Res.drawable.garment_pink_cardigan_large
-        GarmentShape.Trousers, GarmentShape.Skirt -> Res.drawable.garment_denim_skirt
-        GarmentShape.Sneakers -> Res.drawable.garment_white_sneakers
-        GarmentShape.Sandals -> Res.drawable.garment_pink_heels
-    }
+private fun studioDrawable(item: WardrobeItem): DrawableResource? = when (item.id) {
+    "head-beret" -> Res.drawable.garment_pink_beret
+    "top-cream" -> Res.drawable.garment_cream_top
+    "top-blush" -> Res.drawable.garment_pink_cardigan_small
+    "layer-pink" -> Res.drawable.garment_pink_cardigan_large
+    "bottom-denim-skirt" -> Res.drawable.garment_denim_skirt
+    "shoes-white" -> Res.drawable.garment_white_sneakers
+    "shoes-pink" -> Res.drawable.garment_pink_heels
+    "shoes-black" -> Res.drawable.garment_black_boots
+    else -> null
 }

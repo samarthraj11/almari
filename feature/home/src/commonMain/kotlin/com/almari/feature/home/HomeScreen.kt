@@ -38,6 +38,7 @@ import com.almari.core.designsystem.LocalAlmariColors
 import com.almari.core.designsystem.LocalAlmariTypography
 import com.almari.shared.feature.home.HomeComponent
 import com.almari.shared.feature.home.HomeTab
+import com.almari.shared.feature.home.TryOnStage
 import kotlinx.coroutines.delay
 
 @Composable
@@ -45,17 +46,19 @@ fun HomeScreen(component: HomeComponent, modifier: Modifier = Modifier) {
     val state by component.state.collectAsState()
     val colors = LocalAlmariColors.current
     val isCaptureFlow = state.selectedTab == HomeTab.Capture
+    val isTryOnFlow = state.selectedTab == HomeTab.Outfit && state.tryOnStage != TryOnStage.Hidden
+    val isImmersiveFlow = isCaptureFlow || isTryOnFlow
 
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(colors.studioBackground)
-            .then(if (isCaptureFlow) Modifier else Modifier.statusBarsPadding()),
+            .then(if (isImmersiveFlow) Modifier else Modifier.statusBarsPadding()),
     ) {
         Column(Modifier.fillMaxSize()) {
             Box(Modifier.weight(1f).fillMaxWidth()) {
                 when (state.selectedTab) {
-                    HomeTab.Outfit -> OutfitStudioScreen(state, component)
+                    HomeTab.Outfit -> if (isTryOnFlow) AiTryOnScreen(state, component) else OutfitStudioScreen(state, component)
                     HomeTab.Closet -> WardrobeGridScreen(state, component)
                     HomeTab.Capture -> CaptureFlowScreen(component)
                     HomeTab.Saved -> SavedFitsScreen(state, component)
@@ -64,7 +67,7 @@ fun HomeScreen(component: HomeComponent, modifier: Modifier = Modifier) {
                     }
                 }
             }
-            if (!isCaptureFlow) {
+            if (!isImmersiveFlow) {
                 StudioBottomNavigation(
                     selectedTab = state.selectedTab,
                     onSelectTab = component::selectTab,
