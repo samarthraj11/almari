@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.almari.shared.data.initializeHomeStateStorage
 import com.almari.shared.data.configureFirebaseSignOut
+import com.almari.shared.data.configureFirebaseIdTokenProvider
 import com.almari.shared.data.handleFirebaseAuthError
 import com.almari.shared.data.handleFirebaseUser
 import com.google.firebase.auth.FirebaseAuth
@@ -23,6 +24,8 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.dialogs.init
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -34,8 +37,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        FileKit.init(this)
         initializeHomeStateStorage(this)
         configureFirebaseSignOut(::signOutFromFirebase)
+        configureFirebaseIdTokenProvider {
+            FirebaseAuth.getInstance().currentUser?.getIdToken(false)?.await()?.token
+        }
         FirebaseAuth.getInstance().currentUser?.let(::publishFirebaseUser)
         enableEdgeToEdge()
         setContent { App(onNativeGoogleSignIn = ::showGoogleAccountChooser) }
@@ -43,6 +50,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         configureFirebaseSignOut(null)
+        configureFirebaseIdTokenProvider(null)
         activityScope.cancel()
         super.onDestroy()
     }

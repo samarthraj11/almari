@@ -6,6 +6,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 class DefaultHomeComponentTest {
     @Test
@@ -66,5 +68,22 @@ class DefaultHomeComponentTest {
         assertEquals("firebase-user", FirebaseAuthBridge.pending.value?.user?.uid)
         assertEquals("sam@example.com", FirebaseAuthBridge.pending.value?.user?.email)
         FirebaseAuthBridge.clear()
+    }
+
+    @Test
+    fun generatedTryOnCanBeSaved() = runBlocking {
+        val component = DefaultHomeComponent(
+            tryOnImageGenerator = object : TryOnImageGenerator {
+                override suspend fun generate(items: List<WardrobeItem>) = "https://example.com/try-on.png"
+            },
+        )
+
+        component.tryOn()
+        val generated = component.state.first { it.tryOnStage == TryOnStage.Ready }
+        assertEquals("https://example.com/try-on.png", generated.tryOnImageUrl)
+
+        component.saveTryOn()
+        assertEquals(HomeTab.Saved, component.state.value.selectedTab)
+        assertEquals("https://example.com/try-on.png", component.state.value.savedOutfits.first().previewImageUrl)
     }
 }

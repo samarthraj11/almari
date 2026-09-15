@@ -17,6 +17,19 @@ data class AlmariColors(
     val warmBrown: Color = Color(0xFF7A4D34),
     val denim: Color = Color(0xFF456A9E),
     val cream: Color = Color(0xFFF1E4C8),
+    val studioBackground: Color = Color(0xFFFFFBF6),
+    val studioInk: Color = Color(0xFF111111),
+    val studioMuted: Color = Color(0xFF6D6A70),
+    val studioStroke: Color = Color(0xFFECE7E1),
+    val acidLime: Color = Color(0xFFD9FF32),
+    val hotPink: Color = Color(0xFFFF4FCB),
+    val softPink: Color = Color(0xFFFFDDEB),
+    val softLilac: Color = Color(0xFFE9DEFF),
+    val electricBlue: Color = Color(0xFF5B6CFF),
+    val skyTint: Color = Color(0xFFDDF4FF),
+    val mintTint: Color = Color(0xFFDEF8D7),
+    val butterTint: Color = Color(0xFFFFF4B8),
+    val peachTint: Color = Color(0xFFFFE6D6),
 )
 
 fun darkAlmariColors() = AlmariColors(
