@@ -13,15 +13,47 @@ expect object HomeStateStorage {
 }
 
 @Serializable
-private data class PersistedHome(val credits: Int, val rails: List<WardrobeRail>, val savedOutfits: List<SavedOutfit>, val profile: UserProfile)
+private data class PersistedHome(
+    val credits: Int,
+    val rails: List<WardrobeRail>,
+    val savedOutfits: List<SavedOutfit>,
+    val profile: UserProfile,
+    val catalogueVersion: Int = 1,
+)
 
 private val storageJson = Json { ignoreUnknownKeys = true }
 
 fun loadHomeState(): HomeState = runCatching {
     val saved = storageJson.decodeFromString<PersistedHome>(HomeStateStorage.read() ?: return HomeState())
-    HomeState(credits = saved.credits, rails = saved.rails, savedOutfits = saved.savedOutfits, profile = saved.profile)
+    val rails = if (saved.catalogueVersion < CURRENT_CATALOGUE_VERSION) {
+        HomeState().rails.map { freshRail ->
+            val localItems = saved.rails
+                .firstOrNull { it.slot == freshRail.slot }
+                ?.items
+                .orEmpty()
+                .filter { it.id.startsWith("local-") }
+            freshRail.copy(items = freshRail.items + localItems)
+        }
+    } else {
+        saved.rails
+    }
+    HomeState(credits = saved.credits, rails = rails, savedOutfits = saved.savedOutfits, profile = saved.profile)
 }.getOrElse { HomeState() }
 
 fun saveHomeState(state: HomeState) {
-    runCatching { HomeStateStorage.write(storageJson.encodeToString(PersistedHome(state.credits, state.rails, state.savedOutfits, state.profile))) }
+    runCatching {
+        HomeStateStorage.write(
+            storageJson.encodeToString(
+                PersistedHome(
+                    state.credits,
+                    state.rails,
+                    state.savedOutfits,
+                    state.profile,
+                    CURRENT_CATALOGUE_VERSION,
+                ),
+            ),
+        )
+    }
 }
+
+private const val CURRENT_CATALOGUE_VERSION = 2

@@ -101,7 +101,7 @@ private fun GarmentGridCard(item: WardrobeItem, onClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun GarmentDetailSheet(item: WardrobeItem, component: HomeComponent) {
+internal fun GarmentDetailSheet(item: WardrobeItem, component: HomeComponent) {
     ModalBottomSheet(onDismissRequest = { component.showGarment(null) }, containerColor = LocalAlmariColors.current.white) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 22.dp).padding(bottom = 28.dp)) {
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {

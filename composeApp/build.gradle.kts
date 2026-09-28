@@ -39,6 +39,7 @@ kotlin {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.googleid)
             implementation(libs.firebase.auth)
+            implementation(libs.filekit.dialogs.compose)
             implementation(libs.kotlinx.coroutines.play.services)
         }
         commonTest.dependencies {

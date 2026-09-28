@@ -16,7 +16,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-class DefaultHomeComponent : HomeComponent {
+class DefaultHomeComponent(
+    private val tryOnImageGenerator: TryOnImageGenerator = ApiTryOnImageGenerator(),
+) : HomeComponent {
     private val mutableState = MutableStateFlow(loadHomeState())
     override val state: StateFlow<HomeState> = mutableState.asStateFlow()
     private var sequence = 100
@@ -48,6 +50,49 @@ class DefaultHomeComponent : HomeComponent {
         }
         sequence++
     }
+    override fun tryOn() {
+        val state = mutableState.value
+        if (state.credits == 0) {
+            mutableState.update { it.copy(message = "No AI try-on credits left") }
+            return
+        }
+        generateTryOn(state.currentOutfit)
+    }
+    override fun retryTryOn() {
+        val items = mutableState.value.tryOnItems.ifEmpty { mutableState.value.currentOutfit }
+        generateTryOn(items)
+    }
+    override fun saveTryOn() {
+        val state = mutableState.value
+        if (state.tryOnStage != TryOnStage.Ready) return
+        val outfit = SavedOutfit(
+            id = "saved-${sequence++}",
+            name = "AI fit ${state.savedOutfits.size + 1}",
+            items = state.tryOnItems,
+            previewImageUrl = state.tryOnImageUrl,
+        )
+        mutableState.update {
+            it.copy(
+                savedOutfits = listOf(outfit) + it.savedOutfits,
+                selectedTab = HomeTab.Saved,
+                tryOnStage = TryOnStage.Hidden,
+                tryOnItems = emptyList(),
+                tryOnImageUrl = null,
+                tryOnError = null,
+                message = "AI look added to Saved Fits",
+            )
+        }
+    }
+    override fun dismantleTryOn() = mutableState.update {
+        it.copy(
+            selectedTab = HomeTab.Outfit,
+            tryOnStage = TryOnStage.Hidden,
+            tryOnItems = emptyList(),
+            tryOnImageUrl = null,
+            tryOnError = null,
+            message = "Back in Outfit Studio",
+        )
+    }
     override fun selectTab(tab: HomeTab) = mutableState.update { it.copy(selectedTab = tab, isAddGarmentOpen = tab == HomeTab.Capture || it.isAddGarmentOpen) }
     override fun setClosetQuery(query: String) = mutableState.update { it.copy(closetQuery = query) }
     override fun setClosetFilter(filter: ClosetFilter) = mutableState.update { it.copy(closetFilter = filter) }
@@ -68,7 +113,15 @@ class DefaultHomeComponent : HomeComponent {
     }
     override fun showAddGarment(show: Boolean) = mutableState.update { it.copy(isAddGarmentOpen = show, selectedTab = if (!show && it.selectedTab == HomeTab.Capture) HomeTab.Closet else it.selectedTab) }
     override fun addGarment(name: String, brand: String, slot: WardrobeSlot, shape: GarmentShape, colorValue: Long, imageData: ByteArray?, imageMimeType: String?) {
-        val item = WardrobeItem("local-${sequence++}", name.trim(), shape, colorValue, brand.trim().ifBlank { "Unbranded" }, imageData = imageData)
+        val item = WardrobeItem(
+            "local-${sequence++}",
+            name.trim(),
+            shape,
+            colorValue,
+            brand.trim().ifBlank { "Unbranded" },
+            imageData = imageData,
+            imageMimeType = imageMimeType,
+        )
         mutableState.update { state -> state.copy(rails = state.rails.map { if (it.slot == slot) it.copy(items = it.items + item) else it }, selectedTab = HomeTab.Closet, isAddGarmentOpen = false, message = "$name added to your closet") }
     }
     override fun deleteGarment(id: String) {
@@ -124,5 +177,36 @@ class DefaultHomeComponent : HomeComponent {
             authError = null,
             message = "Signed in with Google",
         ) }
+    }
+
+    private fun generateTryOn(items: List<WardrobeItem>) {
+        mutableState.update {
+            it.copy(
+                tryOnStage = TryOnStage.Generating,
+                tryOnItems = items,
+                tryOnImageUrl = null,
+                tryOnError = null,
+            )
+        }
+        scope.launch {
+            runCatching { tryOnImageGenerator.generate(items) }
+                .onSuccess { imageUrl ->
+                    mutableState.update { state ->
+                        state.copy(
+                            credits = (state.credits - 1).coerceAtLeast(0),
+                            tryOnStage = TryOnStage.Ready,
+                            tryOnImageUrl = imageUrl,
+                        )
+                    }
+                }
+                .onFailure { error ->
+                    mutableState.update {
+                        it.copy(
+                            tryOnStage = TryOnStage.Error,
+                            tryOnError = error.message ?: "AI try-on could not be created.",
+                        )
+                    }
+                }
+        }
     }
 }

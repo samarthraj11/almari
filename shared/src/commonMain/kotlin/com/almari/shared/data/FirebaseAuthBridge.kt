@@ -16,6 +16,7 @@ data class FirebaseUserInfo(
 object FirebaseAuthBridge {
     val pending = MutableStateFlow<FirebaseAuthResult?>(null)
     var signOut: (() -> Unit)? = null
+    var idTokenProvider: (suspend () -> String?)? = null
     fun clear() { pending.value = null }
 }
 
@@ -32,6 +33,12 @@ fun handleFirebaseAuthError(message: String) {
 fun configureFirebaseSignOut(handler: (() -> Unit)?) {
     FirebaseAuthBridge.signOut = handler
 }
+
+fun configureFirebaseIdTokenProvider(provider: (suspend () -> String?)?) {
+    FirebaseAuthBridge.idTokenProvider = provider
+}
+
+suspend fun requestFirebaseIdToken(): String? = FirebaseAuthBridge.idTokenProvider?.invoke()
 
 fun requestFirebaseSignOut() {
     FirebaseAuthBridge.signOut?.invoke()
